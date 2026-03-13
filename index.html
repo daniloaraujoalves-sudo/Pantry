@@ -3,34 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arquivo de Clientes - IA</title>
+    <title>Vault AI - Cadastro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
         <header>
-            <h1>Data Vault</h1>
-            <p>Arquivamento seguro de clientes</p>
+            <h1>Vault AI</h1>
+            <p>Armazenamento de Clientes</p>
         </header>
 
         <form id="dataForm">
             <div class="input-group">
                 <label for="name">Nome Completo</label>
-                <input type="text" id="name" placeholder="Ex: João Silva" required>
+                <input type="text" id="name" placeholder="Digite o nome do cliente" required>
             </div>
 
             <div class="input-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" placeholder="email@exemplo.com" required>
+                <label for="email">E-mail Corporativo</label>
+                <input type="email" id="email" placeholder="cliente@empresa.com" required>
             </div>
 
-            <div class="input-group">
-                <label for="value">Valor (R$)</label>
-                <input type="number" id="value" step="0.01" placeholder="0,00" required>
-            </div>
-
-            <button type="submit" class="btn-save">Arquivar Dados</button>
+            <button type="submit" class="btn-save">Arquivar Cliente</button>
         </form>
     </div>
 
