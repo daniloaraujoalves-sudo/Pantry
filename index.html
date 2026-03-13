@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquivo de Clientes - IA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Data Vault</h1>
+            <p>Arquivamento seguro de clientes</p>
+        </header>
+
+        <form id="dataForm">
+            <div class="input-group">
+                <label for="name">Nome Completo</label>
+                <input type="text" id="name" placeholder="Ex: João Silva" required>
+            </div>
+
+            <div class="input-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="email@exemplo.com" required>
+            </div>
+
+            <div class="input-group">
+                <label for="value">Valor (R$)</label>
+                <input type="number" id="value" step="0.01" placeholder="0,00" required>
+            </div>
+
+            <button type="submit" class="btn-save">Arquivar Dados</button>
+        </form>
+    </div>
+
+</body>
+</html>
