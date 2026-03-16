@@ -33,12 +33,18 @@ form.addEventListener('submit', async (e) => {
 
         // 4. Se o envio deu certo:
         if (resposta.ok) {
-            // Primeiro salvamos o nome na memória do navegador
             localStorage.setItem('usuarioNome', nomeInformado); 
             
-            alert(`Bem-vindo, ${nomeInformado}! Redirecionando para a loja...`);
+            // --- LÓGICA DE ADMINISTRADOR ADICIONADA AQUI ---
+            if (emailInformado === 'danilo.araujo.alves@escola.pr.gov.br') {
+                localStorage.setItem('isAdmin', 'true'); // Define como adm
+                alert(`Olá, Danilo! Acesso de Administrador liberado.`);
+            } else {
+                localStorage.setItem('isAdmin', 'false'); // Usuário comum
+                alert(`Bem-vindo, ${nomeInformado}! Redirecionando para a loja...`);
+            }
+            // ----------------------------------------------
             
-            // Depois mudamos de página
             window.location.href = "loja.html"; 
         } else {
             alert("Erro ao processar cadastro no servidor.");
