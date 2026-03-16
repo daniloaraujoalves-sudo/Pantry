@@ -2,61 +2,50 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Vault AI - Loja</title>
-    <style>
-        /* Reutilizando estilos do cadastro */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { background-color: #ffffff; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 500px; }
-        header { text-align: center; margin-bottom: 2rem; }
-        h1 { color: #2d3436; margin-bottom: 5px; }
-        #saudacao { color: #636e72; font-size: 0.9rem; }
-        
-        .grid-loja { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .produto { border: 1px solid #dfe6e9; padding: 1.5rem; border-radius: 12px; text-align: center; transition: 0.3s; }
-        .produto:hover { border-color: #0984e3; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .preco { color: #0984e3; font-weight: bold; font-size: 1.1rem; display: block; margin: 10px 0; }
-        .btn-resgatar { width: 100%; padding: 0.6rem; background: #0984e3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .btn-resgatar:hover { background: #074b83; }
-        .voltar { display: block; text-align: center; margin-top: 20px; color: #b2bec3; text-decoration: none; font-size: 0.8rem; }
+    <title>Vault AI - Loja de Créditos</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        .grid-loja {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .produto {
+            border: 1px solid #dfe6e9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .preco {
+            color: #0984e3;
+            font-weight: bold;
+            display: block;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" style="max-width: 500px;">
         <header>
             <h1>Loja Vault AI</h1>
-            <p id="saudacao">Carregando usuário...</p>
+            <p>Use seus créditos de administrador</p>
         </header>
 
         <div class="grid-loja">
             <div class="produto">
                 <h3>Pacote Basic</h3>
                 <span class="preco">500 Créditos</span>
-                <button class="btn-resgatar">Resgatar</button>
+                <button class="btn-save" style="font-size: 0.8rem;">Resgatar</button>
             </div>
             <div class="produto">
                 <h3>Pacote Pro</h3>
                 <span class="preco">2000 Créditos</span>
-                <button class="btn-resgatar">Resgatar</button>
+                <button class="btn-save" style="font-size: 0.8rem;">Resgatar</button>
             </div>
         </div>
-        <a href="index.html" class="voltar">← Sair do Sistema</a>
+        
+        <br>
+        <a href="index.html" style="color: #636e72; font-size: 0.8rem; text-decoration: none;">← Voltar ao Cadastro</a>
     </div>
-
-    <script>
-        // Recupera o nome do LocalStorage
-        const nomeSalvo = localStorage.getItem('usuarioNome');
-        if (nomeSalvo) {
-            document.getElementById('saudacao').innerText = `Olá, ${nomeSalvo}! Use seus créditos de administrador.`;
-        } else {
-            // Se não houver nome (acesso direto), volta para o login
-            window.location.href = "index.html";
-        }
-
-        // Lógica simples de clique
-        document.querySelectorAll('.btn-resgatar').forEach(btn => {
-            btn.addEventListener('click', () => alert("Pedido enviado para aprovação!"));
-        });
-    </script>
 </body>
 </html>
