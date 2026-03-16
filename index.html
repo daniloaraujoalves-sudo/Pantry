@@ -2,33 +2,50 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vault AI - Cadastro</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Vault AI - Loja de Créditos</title>
+    <link rel="stylesheet" href="style.css"> <style>
+        .grid-loja {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .produto {
+            border: 1px solid #dfe6e9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .preco {
+            color: #0984e3;
+            font-weight: bold;
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-
-    <div class="container">
+    <div class="container" style="max-width: 500px;">
         <header>
-            <h1>Vault AI</h1>
-            <p>1</p>
+            <h1>Loja Vault AI</h1>
+            <p>Use seus créditos de administrador</p>
         </header>
 
-        <form id="dataForm">
-            <div class="input-group">
-                <label for="name">Nome Completo</label>
-                <input type="text" id="name" placeholder="Digite o nome do cliente" required>
+        <div class="grid-loja">
+            <div class="produto">
+                <h3>Pacote Basic</h3>
+                <span class="preco">500 Créditos</span>
+                <button class="btn-save" style="font-size: 0.8rem;">Resgatar</button>
             </div>
-
-            <div class="input-group">
-                <label for="email">E-mail Corporativo</label>
-                <input type="email" id="email" placeholder="cliente@empresa.com" required>
+            <div class="produto">
+                <h3>Pacote Pro</h3>
+                <span class="preco">2000 Créditos</span>
+                <button class="btn-save" style="font-size: 0.8rem;">Resgatar</button>
             </div>
-
-            <button type="submit" class="btn-save">Arquivar Cliente</button>
-        </form>
+        </div>
+        
+        <br>
+        <a href="index.html" style="color: #636e72; font-size: 0.8rem; text-decoration: none;">← Voltar ao Cadastro</a>
     </div>
-
-    <script src="script.js"></script>
 </body>
 </html>
