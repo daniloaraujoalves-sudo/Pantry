@@ -1,55 +1,26 @@
-function validarEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
+// Dentro do seu <script> no index.html
+const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br"; // Ajustado para .gov.br
 
-const form = document.getElementById('dataForm');
-
-form.addEventListener('submit', async (e) => {
+form.addEventListener('submit', (e) => {
     e.preventDefault();
     
-    const emailInformado = document.getElementById('email').value;
-    const nomeInformado = document.getElementById('name').value;
+    const nome = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim().toLowerCase();
 
-    // 1. Verificação de Formato
-    if (!validarEmail(emailInformado)) {
-        alert("Por favor, insira um e-mail válido.");
+    // Verificação de domínio (Opcional, mas recomendado)
+    if (!email.endsWith('.com.br') && !email.endsWith('.gov.br')) {
+        alert("Use um e-mail corporativo ou governamental.");
         return;
     }
 
-    // 2. Verificação de Domínio
-    if (!emailInformado.endsWith('.com.br') && !emailInformado.endsWith('.gov.br')) {
-        alert("Atenção: Use apenas e-mails corporativos ou governamentais.");
-        return;
+    localStorage.setItem('usuarioNome', nome);
+    localStorage.setItem('usuarioEmail', email);
+
+    if (email === ADM_EMAIL) {
+        localStorage.setItem('role', 'admin');
+    } else {
+        localStorage.setItem('role', 'user');
     }
 
-    // 3. Simulação de Envio (O Fetch)
-    try {
-        const resposta = await fetch('https://reqres.in/api/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome: nomeInformado, email: emailInformado })
-        });
-
-        // 4. Se o envio deu certo:
-        if (resposta.ok) {
-            localStorage.setItem('usuarioNome', nomeInformado); 
-            
-            // --- LÓGICA DE ADMINISTRADOR ADICIONADA AQUI ---
-            if (emailInformado === 'danilo.araujo.alves@escola.pr.gov.br') {
-                localStorage.setItem('isAdmin', 'true'); // Define como adm
-                alert(`Olá, Danilo! Acesso de Administrador liberado.`);
-            } else {
-                localStorage.setItem('isAdmin', 'false'); // Usuário comum
-                alert(`Bem-vindo, ${nomeInformado}! Redirecionando para a loja...`);
-            }
-            // ----------------------------------------------
-            
-            window.location.href = "loja.html"; 
-        } else {
-            alert("Erro ao processar cadastro no servidor.");
-        }
-    } catch (erro) {
-        alert("Erro de conexão com o servidor. Verifique sua internet.");
-    }
+    window.location.href = "loja.html";
 });
