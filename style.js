@@ -11,14 +11,6 @@ form.addEventListener('submit', async (e) => {
     const emailInformado = document.getElementById('email').value;
     const nomeInformado = document.getElementById('name').value;
 
-    // ... dentro do if (resposta.ok)
-if (resposta.ok) {
-    // SALVA O NOME AQUI
-    localStorage.setItem('usuarioNome', nomeInformado); 
-    
-    alert("Cliente autenticado!");
-    window.location.href = "loja.html"; 
-}
     // 1. Verificação de Formato
     if (!validarEmail(emailInformado)) {
         alert("Por favor, insira um e-mail válido.");
@@ -39,14 +31,19 @@ if (resposta.ok) {
             body: JSON.stringify({ nome: nomeInformado, email: emailInformado })
         });
 
+        // 4. Se o envio deu certo:
         if (resposta.ok) {
-            alert("Cliente autenticado! Redirecionando para a loja...");
-            // Redireciona para a página da loja que você criou
+            // Primeiro salvamos o nome na memória do navegador
+            localStorage.setItem('usuarioNome', nomeInformado); 
+            
+            alert(`Bem-vindo, ${nomeInformado}! Redirecionando para a loja...`);
+            
+            // Depois mudamos de página
             window.location.href = "loja.html"; 
         } else {
-            alert("Erro ao processar cadastro.");
+            alert("Erro ao processar cadastro no servidor.");
         }
     } catch (erro) {
-        alert("Erro de conexão com o servidor.");
+        alert("Erro de conexão com o servidor. Verifique sua internet.");
     }
 });
