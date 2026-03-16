@@ -11,6 +11,14 @@ form.addEventListener('submit', async (e) => {
     const emailInformado = document.getElementById('email').value;
     const nomeInformado = document.getElementById('name').value;
 
+    // ... dentro do if (resposta.ok)
+if (resposta.ok) {
+    // SALVA O NOME AQUI
+    localStorage.setItem('usuarioNome', nomeInformado); 
+    
+    alert("Cliente autenticado!");
+    window.location.href = "loja.html"; 
+}
     // 1. Verificação de Formato
     if (!validarEmail(emailInformado)) {
         alert("Por favor, insira um e-mail válido.");
