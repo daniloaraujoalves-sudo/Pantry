@@ -26,4 +26,11 @@ form.addEventListener('submit', async (e) => {
     console.log("E-mail validado! Iniciando envio...");
     
     // ... restante do código de envio (fetch) que vimos antes
+// ... dentro da sua função de submit, após o sucesso do fetch:
+
+if (resposta.ok) {
+    alert("Cliente autenticado! Redirecionando para a loja...");
+    
+    // Comando que muda de página automaticamente
+    window.location.href = "loja.html"; 
 });
