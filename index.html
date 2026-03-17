@@ -39,26 +39,24 @@
         const form = document.getElementById('dataForm');
         const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov";
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const nome = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim().toLowerCase();
+            // ... (o resto do código continua igual)   ← isso é só um comentário explicativo, não precisa copiar
 
-            // Salva os dados na sessão
-            localStorage.setItem('usuarioNome', nome);
-            localStorage.setItem('usuarioEmail', email);
+    const email = document.getElementById('email').value.trim().toLowerCase();
 
-            // Define se é ADM
-            if (email === ADM_EMAIL) {
-                localStorage.setItem('role', 'admin');
-                alert("Bem-vindo, Administrador Danilo!");
-            } else {
-                localStorage.setItem('role', 'user');
-                alert(`Olá, ${nome}! Acessando loja...`);
-            }
+    console.log("E-mail digitado (após trim e lowercase):", email);
+    console.log("E-mail esperado para admin:", ADM_EMAIL);
 
-            window.location.href = "loja.html";
+    if (email === ADM_EMAIL) {
+        localStorage.setItem('role', 'admin');
+        console.log("ADMIN DETECTADO → role salvo como 'admin'");
+        alert("Bem-vindo, Administrador Danilo!");
+    } else {
+        localStorage.setItem('role', 'user');
+        console.log("NÃO é admin → role salvo como 'user'");
+        alert(`Olá, ${nome}! Acessando loja...`);
+    }
+
+    console.log("Role final salvo:", localStorage.getItem('role'));
         });
     </script>
 </body>
