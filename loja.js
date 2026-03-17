@@ -38,3 +38,4 @@
         alert(`Solicitação do ${item} enviada!`);
     }
 </script>
+JSON.parse(localStorage.getItem('bancoUsuarios')) || []
