@@ -1,6 +1,96 @@
-<form id="formCadastro">
-    <input type="text" id="nome" placeholder="Nome Completo" required>
-    <input type="email" id="email" placeholder="E-mail" required>
-    <button type="submit">Cadastrar Cliente</button>
-</form>
-<p id="status"></p>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Vault AI - Loja</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f8f9fa; padding: 2rem; display: flex; flex-direction: column; align-items: center; }
+        .container { background-color: #ffffff; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 600px; }
+        
+        /* Estilo da Loja */
+        .grid-loja { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .produto { border: 1px solid #dfe6e9; padding: 1rem; border-radius: 12px; text-align: center; }
+        .preco { color: #0984e3; font-weight: bold; display: block; margin: 10px 0; }
+        
+        /* Painel de Admin (Escondido por padrão) */
+        #adminPanel { 
+            display: none; 
+            margin-top: 30px; 
+            width: 100%; 
+            border-top: 2px solid #eee; 
+            padding-top: 20px; 
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.8rem; }
+        th { background-color: #f1f1f1; }
+        .badge-adm { background: #d63031; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1 id="boasVindas">Loja Vault AI</h1>
+            <p id="statusUser"></p>
+        </header>
+
+        <div class="grid-loja">
+            <div class="produto">
+                <h3>Pacote Basic</h3>
+                <span class="preco">500 Créditos</span>
+                <button onclick="comprar('Basic')">Resgatar</button>
+            </div>
+            <div class="produto">
+                <h3>Pacote Pro</h3>
+                <span class="preco">2000 Créditos</span>
+                <button onclick="comprar('Pro')">Resgatar</button>
+            </div>
+        </div>
+
+        <div id="adminPanel">
+            <h2 style="color: #d63031;">🛠 Painel do Administrador</h2>
+            <p>Lista de Compras Recentes:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuário</th>
+                        <th>E-mail</th>
+                        <th>Produto</th>
+                    </tr>
+                </thead>
+                <tbody id="listaCompras">
+                    <tr>
+                        <td>Carlos Oliveira</td>
+                        <td>carlos@escola.pr.gov</td>
+                        <td>Pacote Pro</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <br>
+        <a href="index.html" onclick="localStorage.clear()">← Sair e trocar e-mail</a>
+    </div>
+
+    <script>
+        const nome = localStorage.getItem('usuarioNome');
+        const role = localStorage.getItem('role');
+
+        // Se não logou, volta pro login
+        if (!nome) { window.location.href = "index.html"; }
+
+        document.getElementById('boasVindas').innerText = `Olá, ${nome}!`;
+
+        // Lógica de VISIBILIDADE DO ADMIN
+        if (role === 'admin') {
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('statusUser').innerHTML = '<span class="badge-adm">ADMINISTRADOR</span>';
+        }
+
+        function comprar(item) {
+            alert(`Solicitação do ${item} enviada!`);
+        }
+    </script>
+</body>
+</html>
