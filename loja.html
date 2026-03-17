@@ -8,23 +8,41 @@
         body { background-color: #f8f9fa; padding: 2rem; display: flex; flex-direction: column; align-items: center; }
         .container { background-color: #ffffff; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 600px; }
         
-        /* Estilo da Loja */
         .grid-loja { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .produto { border: 1px solid #dfe6e9; padding: 1rem; border-radius: 12px; text-align: center; }
         .preco { color: #0984e3; font-weight: bold; display: block; margin: 10px 0; }
         
-        /* Painel de Admin (Escondido por padrão) */
-        #adminPanel { 
-            display: none; 
-            margin-top: 30px; 
-            width: 100%; 
-            border-top: 2px solid #eee; 
-            padding-top: 20px; 
-        }
+        #adminPanel { display: none; margin-top: 30px; width: 100%; border-top: 2px solid #eee; padding-top: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.8rem; }
         th { background-color: #f1f1f1; }
         .badge-adm { background: #d63031; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
+        
+        button {
+            width: 100%;
+            padding: 0.6rem;
+            background-color: #0984e3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        button:hover { background-color: #074b83; }
+        
+        .sair-btn {
+            margin-top: 2rem;
+            background: #e74c3c;
+            display: block;
+            text-align: center;
+            padding: 0.9rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .sair-btn:hover { background: #c0392b; }
     </style>
 </head>
 <body>
@@ -50,46 +68,64 @@
 
         <div id="adminPanel">
             <h2 style="color: #d63031;">🛠 Painel do Administrador</h2>
-            <p>Lista de Compras Recentes:</p>
+            <p>Registros de acessos e atividades:</p>
             <table>
                 <thead>
                     <tr>
                         <th>Usuário</th>
                         <th>E-mail</th>
-                        <th>Produto</th>
+                        <th>Data / Atividade</th>
                     </tr>
                 </thead>
-                <tbody id="listaCompras">
-                    <tr>
-                        <td>Carlos Oliveira</td>
-                        <td>carlos@escola.pr.gov</td>
-                        <td>Pacote Pro</td>
-                    </tr>
-                </tbody>
+                <tbody id="listaCompras"></tbody>
             </table>
         </div>
 
-        <br>
-        <a href="index.html" onclick="localStorage.clear()">← Sair e trocar e-mail</a>
+        <a href="index.html" class="sair-btn" onclick="localStorage.clear()">Sair do sistema</a>
     </div>
 
     <script>
         const nome = localStorage.getItem('usuarioNome');
         const role = localStorage.getItem('role');
 
-        // Se não logou, volta pro login
-        if (!nome) { window.location.href = "index.html"; }
+        if (!nome) {
+            window.location.href = "index.html";
+        }
 
         document.getElementById('boasVindas').innerText = `Olá, ${nome}!`;
 
-        // Lógica de VISIBILIDADE DO ADMIN
         if (role === 'admin') {
             document.getElementById('adminPanel').style.display = 'block';
             document.getElementById('statusUser').innerHTML = '<span class="badge-adm">ADMINISTRADOR</span>';
+            carregarDadosAdmin();
+        }
+
+        function carregarDadosAdmin() {
+            const listaHtml = document.getElementById('listaCompras');
+            const banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
+            
+            listaHtml.innerHTML = "";
+
+            if (banco.length === 0) {
+                listaHtml.innerHTML = '<tr><td colspan="3">Nenhum registro ainda.</td></tr>';
+                return;
+            }
+
+            banco.forEach(user => {
+                const linha = `
+                    <tr>
+                        <td>${user.nome}</td>
+                        <td>${user.email}</td>
+                        <td>Acesso em: ${user.data}</td>
+                    </tr>
+                `;
+                listaHtml.innerHTML += linha;
+            });
         }
 
         function comprar(item) {
-            alert(`Solicitação do ${item} enviada!`);
+            alert(`Solicitação do pacote ${item} enviada com sucesso! (funcionalidade em desenvolvimento)`);
+            // Aqui você pode adicionar registro de compra no futuro
         }
     </script>
 </body>

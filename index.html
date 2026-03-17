@@ -11,8 +11,9 @@
         header { text-align: center; margin-bottom: 2rem; }
         .input-group { margin-bottom: 1.2rem; }
         .input-group label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 500; }
-        .input-group input { width: 100%; padding: 0.75rem; border: 1px solid #dfe6e9; border-radius: 8px; outline: none; width: 100%; }
-        .btn-save { width: 100%; padding: 0.9rem; background-color: #0984e3; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .input-group input { width: 100%; padding: 0.75rem; border: 1px solid #dfe6e9; border-radius: 8px; outline: none; }
+        .btn-save { width: 100%; padding: 0.9rem; background-color: #0984e3; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-save:hover { background-color: #074b83; }
     </style>
 </head>
 <body>
@@ -31,32 +32,54 @@
                 <label>E-mail Corporativo</label>
                 <input type="email" id="email" required>
             </div>
-            <button type="submit" id="btnSubmit" class="btn-save">Acessar Sistema</button>
+            <button type="submit" class="btn-save">Acessar Sistema</button>
         </form>
     </div>
 
     <script>
         const form = document.getElementById('dataForm');
-        const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov";
+        const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";  // ← mude aqui se precisar
 
-            // ... (o resto do código continua igual)   ← isso é só um comentário explicativo, não precisa copiar
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const nome = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
 
-    const email = document.getElementById('email').value.trim().toLowerCase();
+            if (!nome || !email) {
+                alert("Preencha nome e e-mail.");
+                return;
+            }
 
-    console.log("E-mail digitado (após trim e lowercase):", email);
-    console.log("E-mail esperado para admin:", ADM_EMAIL);
+            // Registro no "banco" de usuários/acessos
+            let banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
+            
+            // Evita duplicar o mesmo email
+            const jaExiste = banco.some(u => u.email === email);
+            if (!jaExiste) {
+                banco.push({
+                    nome,
+                    email,
+                    data: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+                });
+                localStorage.setItem('bancoUsuarios', JSON.stringify(banco));
+            }
 
-    if (email === ADM_EMAIL) {
-        localStorage.setItem('role', 'admin');
-        console.log("ADMIN DETECTADO → role salvo como 'admin'");
-        alert("Bem-vindo, Administrador Danilo!");
-    } else {
-        localStorage.setItem('role', 'user');
-        console.log("NÃO é admin → role salvo como 'user'");
-        alert(`Olá, ${nome}! Acessando loja...`);
-    }
+            // Salva sessão atual
+            localStorage.setItem('usuarioNome', nome);
+            localStorage.setItem('usuarioEmail', email);
 
-    console.log("Role final salvo:", localStorage.getItem('role'));
+            // Define role
+            if (email === ADM_EMAIL) {
+                localStorage.setItem('role', 'admin');
+                alert("Bem-vindo, Administrador Danilo!");
+            } else {
+                localStorage.setItem('role', 'user');
+                alert(`Olá, ${nome}! Acessando loja...`);
+            }
+
+            // Redireciona
+            window.location.href = "loja.html";
         });
     </script>
 </body>
