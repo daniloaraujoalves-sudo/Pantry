@@ -5,44 +5,21 @@
     <title>Vault AI - Loja</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #f8f9fa; padding: 2rem; display: flex; flex-direction: column; align-items: center; }
-        .container { background-color: #ffffff; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 600px; }
-        
-        .grid-loja { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .produto { border: 1px solid #dfe6e9; padding: 1rem; border-radius: 12px; text-align: center; }
-        .preco { color: #0984e3; font-weight: bold; display: block; margin: 10px 0; }
-        
-        #adminPanel { display: none; margin-top: 30px; width: 100%; border-top: 2px solid #eee; padding-top: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.8rem; }
-        th { background-color: #f1f1f1; }
-        .badge-adm { background: #d63031; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
-        
-        button {
-            width: 100%;
-            padding: 0.6rem;
-            background-color: #0984e3;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        button:hover { background-color: #074b83; }
-        
-        .sair-btn {
-            margin-top: 2rem;
-            background: #e74c3c;
-            display: block;
-            text-align: center;
-            padding: 0.9rem;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-        .sair-btn:hover { background: #c0392b; }
+        body { background: #f8f9fa; padding: 2rem; display: flex; flex-direction: column; align-items: center; }
+        .container { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 700px; width: 100%; }
+        .grid-loja { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .produto { border: 1px solid #dfe6e9; padding: 1.5rem; border-radius: 12px; text-align: center; }
+        .preco { color: #0984e3; font-weight: bold; font-size: 1.2rem; margin: 0.8rem 0; display: block; }
+        #adminPanel { display: none; margin-top: 2.5rem; padding-top: 2rem; border-top: 2px solid #eee; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { border: 1px solid #ddd; padding: 0.8rem; text-align: left; font-size: 0.9rem; }
+        th { background: #f1f1f1; font-weight: 600; }
+        .badge-adm { background: #d63031; color: white; padding: 0.3rem 0.7rem; border-radius: 4px; font-size: 0.75rem; }
+        button { width: 100%; padding: 0.7rem; background: #0984e3; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #074b83; }
+        .sair { margin-top: 2.5rem; background: #e74c3c; display: block; text-align: center; padding: 1rem; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        .sair:hover { background: #c0392b; }
+        h3.section { margin: 2rem 0 0.8rem; color: #2d3436; }
     </style>
 </head>
 <body>
@@ -67,21 +44,26 @@
         </div>
 
         <div id="adminPanel">
-            <h2 style="color: #d63031;">🛠 Painel do Administrador</h2>
-            <p>Registros de acessos e atividades:</p>
+            <h2 style="color: #d63031;">Painel do Administrador</h2>
+
+            <h3 class="section">Registros de Acessos</h3>
             <table>
                 <thead>
-                    <tr>
-                        <th>Usuário</th>
-                        <th>E-mail</th>
-                        <th>Data / Atividade</th>
-                    </tr>
+                    <tr><th>Nome</th><th>E-mail</th><th>Data/Hora</th></tr>
+                </thead>
+                <tbody id="listaAcessos"></tbody>
+            </table>
+
+            <h3 class="section">Planos Resgatados</h3>
+            <table>
+                <thead>
+                    <tr><th>Nome</th><th>E-mail</th><th>Plano</th><th>Data/Hora</th></tr>
                 </thead>
                 <tbody id="listaCompras"></tbody>
             </table>
         </div>
 
-        <a href="index.html" class="sair-btn" onclick="localStorage.clear()">Sair do sistema</a>
+        <a href="index.html" class="sair" onclick="localStorage.clear()">Sair do sistema</a>
     </div>
 
     <script>
@@ -90,6 +72,7 @@
 
         if (!nome) {
             window.location.href = "index.html";
+            return;
         }
 
         document.getElementById('boasVindas').innerText = `Olá, ${nome}!`;
@@ -101,31 +84,50 @@
         }
 
         function carregarDadosAdmin() {
-            const listaHtml = document.getElementById('listaCompras');
-            const banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
-            
-            listaHtml.innerHTML = "";
+            const acessosBody = document.getElementById('listaAcessos');
+            const comprasBody = document.getElementById('listaCompras');
 
-            if (banco.length === 0) {
-                listaHtml.innerHTML = '<tr><td colspan="3">Nenhum registro ainda.</td></tr>';
-                return;
-            }
+            const acessos = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
+            const compras = JSON.parse(localStorage.getItem('compras')) || [];
 
-            banco.forEach(user => {
-                const linha = `
+            acessosBody.innerHTML = acessos.length === 0 
+                ? '<tr><td colspan="3" style="text-align:center;">Nenhum acesso registrado ainda.</td></tr>'
+                : acessos.map(u => `
                     <tr>
-                        <td>${user.nome}</td>
-                        <td>${user.email}</td>
-                        <td>Acesso em: ${user.data}</td>
+                        <td>${u.nome}</td>
+                        <td>${u.email}</td>
+                        <td>${u.data}</td>
                     </tr>
-                `;
-                listaHtml.innerHTML += linha;
-            });
+                `).join('');
+
+            comprasBody.innerHTML = compras.length === 0 
+                ? '<tr><td colspan="4" style="text-align:center;">Nenhum plano resgatado ainda.</td></tr>'
+                : compras.map(c => `
+                    <tr>
+                        <td>${c.nome}</td>
+                        <td>${c.email}</td>
+                        <td><strong>${c.produto}</strong></td>
+                        <td>${c.data}</td>
+                    </tr>
+                `).join('');
         }
 
         function comprar(item) {
-            alert(`Solicitação do pacote ${item} enviada com sucesso! (funcionalidade em desenvolvimento)`);
-            // Aqui você pode adicionar registro de compra no futuro
+            const nomeAtual = localStorage.getItem('usuarioNome') || 'Usuário';
+            const emailAtual = localStorage.getItem('usuarioEmail') || 'sem@email';
+
+            let compras = JSON.parse(localStorage.getItem('compras')) || [];
+            compras.push({
+                nome: nomeAtual,
+                email: emailAtual,
+                produto: item,
+                data: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+            });
+            localStorage.setItem('compras', JSON.stringify(compras));
+
+            alert(`Pacote ${item} resgatado com sucesso!`);
+
+            if (role === 'admin') carregarDadosAdmin(); // atualiza em tempo real se for admin
         }
     </script>
 </body>

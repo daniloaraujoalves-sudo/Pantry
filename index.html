@@ -7,13 +7,13 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { background-color: #ffffff; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); width: 100%; max-width: 380px; }
+        .container { background: white; padding: 2.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 380px; width: 100%; }
         header { text-align: center; margin-bottom: 2rem; }
         .input-group { margin-bottom: 1.2rem; }
         .input-group label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 500; }
         .input-group input { width: 100%; padding: 0.75rem; border: 1px solid #dfe6e9; border-radius: 8px; outline: none; }
-        .btn-save { width: 100%; padding: 0.9rem; background-color: #0984e3; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-save:hover { background-color: #074b83; }
+        button { width: 100%; padding: 0.9rem; background: #0984e3; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #074b83; }
     </style>
 </head>
 <body>
@@ -38,7 +38,7 @@
 
     <script>
         const form = document.getElementById('dataForm');
-        const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";  // ← mude aqui se precisar
+        const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";  // ajuste se necessário
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -51,23 +51,18 @@
                 return;
             }
 
-            // Registro no "banco" de usuários/acessos
-            let banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
-            
-            // Evita duplicar o mesmo email
-            const jaExiste = banco.some(u => u.email === email);
-            if (!jaExiste) {
-                banco.push({
-                    nome,
-                    email,
-                    data: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
-                });
-                localStorage.setItem('bancoUsuarios', JSON.stringify(banco));
-            }
-
             // Salva sessão atual
             localStorage.setItem('usuarioNome', nome);
             localStorage.setItem('usuarioEmail', email);
+
+            // Registra acesso (sempre adiciona, sem verificar duplicata)
+            let banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
+            banco.push({
+                nome,
+                email,
+                data: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+            });
+            localStorage.setItem('bancoUsuarios', JSON.stringify(banco));
 
             // Define role
             if (email === ADM_EMAIL) {
@@ -78,7 +73,6 @@
                 alert(`Olá, ${nome}! Acessando loja...`);
             }
 
-            // Redireciona
             window.location.href = "loja.html";
         });
     </script>
