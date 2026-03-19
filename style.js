@@ -1,6 +1,5 @@
-// Substitua o script do seu index.html por este:
 const form = document.getElementById('dataForm');
-const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";
+const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";  // E-mail do administrador
 
 form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -8,21 +7,25 @@ form.addEventListener('submit', (e) => {
     const nome = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim().toLowerCase();
 
-    // --- LÓGICA DE REGISTRO DE USUÁRIOS NO "BANCO" ---
-    // Pegamos a lista de usuários já cadastrados ou criamos uma vazia
-    let usuariosCadastrados = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
-    
-    // Adicionamos o novo usuário na lista
-    usuariosCadastrados.push({ nome, email, data: new Date().toLocaleDateString() });
-    
-    // Salvamos de volta no localStorage
-    localStorage.setItem('bancoUsuarios', JSON.stringify(usuariosCadastrados));
-    // ------------------------------------------------
+    if (!nome || !email) {
+        alert("Preencha nome e e-mail.");
+        return;
+    }
 
-    // Sessão atual
+    // Salva sessão atual
     localStorage.setItem('usuarioNome', nome);
     localStorage.setItem('usuarioEmail', email);
 
+    // Registra o acesso do usuário no "banco" local
+    let banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
+    banco.push({
+        nome,
+        email,
+        data: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+    });
+    localStorage.setItem('bancoUsuarios', JSON.stringify(banco));
+
+    // Define o papel (role) do usuário
     if (email === ADM_EMAIL) {
         localStorage.setItem('role', 'admin');
         alert("Bem-vindo, Administrador Danilo!");
@@ -31,5 +34,5 @@ form.addEventListener('submit', (e) => {
         alert(`Olá, ${nome}! Acessando loja...`);
     }
 
-    window.location.href = "loja.html";
+    window.location.href = "loja.html";  // Redireciona para a página da loja
 });

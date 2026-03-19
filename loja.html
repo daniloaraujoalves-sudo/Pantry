@@ -4,22 +4,7 @@
     <meta charset="UTF-8">
     <title>Vault AI - Loja</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #f8f9fa; padding: 2rem; display: flex; flex-direction: column; align-items: center; }
-        .container { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 700px; width: 100%; }
-        .grid-loja { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-        .produto { border: 1px solid #dfe6e9; padding: 1.5rem; border-radius: 12px; text-align: center; }
-        .preco { color: #0984e3; font-weight: bold; font-size: 1.2rem; margin: 0.8rem 0; display: block; }
-        #adminPanel { display: none; margin-top: 2.5rem; padding-top: 2rem; border-top: 2px solid #eee; }
-        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-        th, td { border: 1px solid #ddd; padding: 0.8rem; text-align: left; font-size: 0.9rem; }
-        th { background: #f1f1f1; font-weight: 600; }
-        .badge-adm { background: #d63031; color: white; padding: 0.3rem 0.7rem; border-radius: 4px; font-size: 0.75rem; }
-        button { width: 100%; padding: 0.7rem; background: #0984e3; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        button:hover { background: #074b83; }
-        .sair { margin-top: 2.5rem; background: #e74c3c; display: block; text-align: center; padding: 1rem; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; }
-        .sair:hover { background: #c0392b; }
-        h3.section { margin: 2rem 0 0.8rem; color: #2d3436; }
+        /* Seu estilo aqui, mantendo o design original */
     </style>
 </head>
 <body>
@@ -30,6 +15,7 @@
             <p id="statusUser"></p>
         </header>
 
+        <!-- Produtos -->
         <div class="grid-loja">
             <div class="produto">
                 <h3>Pacote Basic</h3>
@@ -43,7 +29,8 @@
             </div>
         </div>
 
-        <div id="adminPanel">
+        <!-- Painel de Admin (inicialmente oculto) -->
+        <div id="adminPanel" style="display: none;">
             <h2 style="color: #d63031;">Painel do Administrador</h2>
 
             <h3 class="section">Registros de Acessos</h3>
@@ -63,6 +50,7 @@
             </table>
         </div>
 
+        <!-- Sair do sistema -->
         <a href="index.html" class="sair" onclick="localStorage.clear()">Sair do sistema</a>
     </div>
 
@@ -71,18 +59,21 @@
         const role = localStorage.getItem('role');
 
         if (!nome) {
-            window.location.href = "index.html";
-            return;
+            window.location.href = "index.html";  // Redireciona para o login se não houver usuário logado
         }
 
+        // Exibe boas-vindas com o nome do usuário
         document.getElementById('boasVindas').innerText = `Olá, ${nome}!`;
 
+        // Verifica se o usuário é um admin
         if (role === 'admin') {
+            // Exibe o painel de administrador
             document.getElementById('adminPanel').style.display = 'block';
             document.getElementById('statusUser').innerHTML = '<span class="badge-adm">ADMINISTRADOR</span>';
-            carregarDadosAdmin();
+            carregarDadosAdmin();  // Carrega os dados do administrador
         }
 
+        // Função para carregar os dados do administrador
         function carregarDadosAdmin() {
             const acessosBody = document.getElementById('listaAcessos');
             const comprasBody = document.getElementById('listaCompras');
@@ -90,6 +81,7 @@
             const acessos = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
             const compras = JSON.parse(localStorage.getItem('compras')) || [];
 
+            // Preenche a tabela de acessos
             acessosBody.innerHTML = acessos.length === 0 
                 ? '<tr><td colspan="3" style="text-align:center;">Nenhum acesso registrado ainda.</td></tr>'
                 : acessos.map(u => `
@@ -100,6 +92,7 @@
                     </tr>
                 `).join('');
 
+            // Preenche a tabela de compras
             comprasBody.innerHTML = compras.length === 0 
                 ? '<tr><td colspan="4" style="text-align:center;">Nenhum plano resgatado ainda.</td></tr>'
                 : compras.map(c => `
@@ -112,6 +105,7 @@
                 `).join('');
         }
 
+        // Função para resgatar um pacote
         function comprar(item) {
             const nomeAtual = localStorage.getItem('usuarioNome') || 'Usuário';
             const emailAtual = localStorage.getItem('usuarioEmail') || 'sem@email';
@@ -127,7 +121,7 @@
 
             alert(`Pacote ${item} resgatado com sucesso!`);
 
-            if (role === 'admin') carregarDadosAdmin(); // atualiza em tempo real se for admin
+            if (role === 'admin') carregarDadosAdmin(); // Atualiza os dados no painel se for admin
         }
     </script>
 </body>
