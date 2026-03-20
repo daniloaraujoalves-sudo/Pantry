@@ -172,6 +172,20 @@
             link.setAttribute("download", "relatorio_vault_ai.csv");
             link.click();
         }
+        // Procure essa parte no final da sua loja.html e substitua:
+const role = localStorage.getItem('role');
+const emailLogado = localStorage.getItem('usuarioEmail');
+const ADM_AUTORIZADO = "danilo.araujo.alves@escola.pr.gov.br";
+
+// Verifica se é admin por dois caminhos para não ter erro
+if (role === 'admin' || emailLogado === ADM_AUTORIZADO) {
+    console.log("Admin detectado!"); // Isso ajuda a ver no F12 se funcionou
+    document.getElementById('adminPanel').style.display = 'block';
+    document.getElementById('statusUser').innerHTML = '<span class="badge-adm">MODO ADMINISTRADOR</span>';
+    atualizarPainel();
+} else {
+    console.log("Usuário comum detectado.");
+}
     </script>
 </body>
 </html>
