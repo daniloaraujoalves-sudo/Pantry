@@ -3,272 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vault AI - Loja</title>
+    <title>Vault AI - Login</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 3rem 1rem;
-        }
-
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            max-width: 900px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        h1 {
-            font-size: 2rem;
-            color: #333;
-        }
-
-        p {
-            font-size: 1rem;
-            color: #555;
-        }
-
-        .grid-loja {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .produto {
-            background-color: #fff;
-            border-radius: 12px;
-            border: 1px solid #ddd;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .produto:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .produto h3 {
-            font-size: 1.4rem;
-            color: #333;
-            margin-bottom: 1rem;
-        }
-
-        .preco {
-            font-size: 1.2rem;
-            color: #0984e3;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        button {
-            width: 100%;
-            padding: 1rem;
-            background: #0984e3;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background-color: #074b83;
-        }
-
-        .admin-panel {
-            display: none;
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 2px solid #eee;
-            background-color: #f1f2f6;
-            border-radius: 8px;
-        }
-
-        .admin-panel h2 {
-            color: #d63031;
-            font-size: 1.6rem;
-            margin-bottom: 1rem;
-        }
-
-        .admin-panel table {
-            width: 100%;
-            margin-top: 1rem;
-            border-collapse: collapse;
-        }
-
-        .admin-panel table th,
-        .admin-panel table td {
-            padding: 1rem;
-            border: 1px solid #ddd;
-            text-align: left;
-            font-size: 1rem;
-        }
-
-        .admin-panel table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-
-        .badge-adm {
-            background: #d63031;
-            color: white;
-            padding: 0.3rem 0.7rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-
-        .sair {
-            margin-top: 3rem;
-            background-color: #e74c3c;
-            padding: 1rem;
-            text-align: center;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            display: block;
-            transition: background-color 0.3s;
-        }
-
-        .sair:hover {
-            background-color: #c0392b;
-        }
+        body { font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
+        .login-card { background: white; padding: 2rem; border-radius: 12px; shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
+        button { width: 100%; padding: 10px; background: #0984e3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <header>
-            <h1 id="boasVindas">Loja Vault AI</h1>
-            <p id="statusUser"></p>
-        </header>
-
-        <!-- Produtos da loja -->
-        <div class="grid-loja">
-            <div class="produto">
-                <h3>Pacote Basic</h3>
-                <span class="preco">500 Créditos</span>
-                <button onclick="comprar('Basic')">Resgatar</button>
-            </div>
-            <div class="produto">
-                <h3>Pacote Pro</h3>
-                <span class="preco">2000 Créditos</span>
-                <button onclick="comprar('Pro')">Resgatar</button>
-            </div>
-        </div>
-
-        <!-- Painel de Administração -->
-        <div id="adminPanel" class="admin-panel">
-            <h2>Painel do Administrador</h2>
-
-            <h3>Registros de Acessos</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>Data/Hora</th>
-                    </tr>
-                </thead>
-                <tbody id="listaAcessos"></tbody>
-            </table>
-
-            <h3>Planos Resgatados</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>Plano</th>
-                        <th>Data/Hora</th>
-                    </tr>
-                </thead>
-                <tbody id="listaCompras"></tbody>
-            </table>
-        </div>
-
-        <!-- Sair do sistema -->
-        <a href="index.html" class="sair" onclick="localStorage.clear()">Sair do sistema</a>
+    <div class="login-card">
+        <h2>Entrar no Vault AI</h2>
+        <form id="dataForm">
+            <input type="text" id="name" placeholder="Seu Nome" required>
+            <input type="email" id="email" placeholder="Seu E-mail" required>
+            <button type="submit">Acessar Loja</button>
+        </form>
     </div>
 
     <script>
-        const nome = localStorage.getItem('usuarioNome');
-        const role = localStorage.getItem('role');
+        const form = document.getElementById('dataForm');
+        const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";
 
-        if (!nome) {
-            window.location.href = "index.html";  // Redireciona para o login se não houver usuário logado
-        }
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const nome = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
 
-        // Exibe boas-vindas com o nome do usuário
-        document.getElementById('boasVindas').innerText = `Olá, ${nome}!`;
+            // Salva dados da sessão
+            localStorage.setItem('usuarioNome', nome);
+            localStorage.setItem('usuarioEmail', email);
 
-        // Verifica se o usuário é um admin
-        if (role === 'admin') {
-            // Exibe o painel de administrador
-            document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('statusUser').innerHTML = '<span class="badge-adm">ADMINISTRADOR</span>';
-            carregarDadosAdmin();  // Carrega os dados do administrador
-        }
+            // Registro de logs para o Admin ver depois
+            let banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
+            banco.push({
+                nome: nome,
+                email: email,
+                data: new Date().toLocaleString('pt-BR')
+            });
+            localStorage.setItem('bancoUsuarios', JSON.stringify(banco));
 
-        // Função para carregar os dados do administrador
-        function carregarDadosAdmin() {
-            const acessosBody = document.getElementById('listaAcessos');
-            const comprasBody = document.getElementById('listaCompras');
+            // Define permissão
+            if (email === ADM_EMAIL) {
+                localStorage.setItem('role', 'admin');
+            } else {
+                localStorage.setItem('role', 'user');
+            }
 
-            const acessos = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
-            const compras = JSON.parse(localStorage.getItem('compras')) || [];
-
-            // Preenche a tabela de acessos
-            acessosBody.innerHTML = acessos.length === 0 
-                ? '<tr><td colspan="3" style="text-align:center;">Nenhum acesso registrado ainda.</td></tr>'
-                : acessos.map(u => `
-                    <tr>
-                        <td>${u.nome}</td>
-                        <td>${u.email}</td>
-                        <td>${u.data}</td>
-                    </tr>
-                `).join('');
-
-            // Preenche a tabela de compras
-            comprasBody.innerHTML = compras.length === 0 
-                ? '<tr><td colspan="4" style="text-align:center;">Nenhum plano resgatado ainda.</td></tr>'
-                : compras.map(c => `
-                    <tr>
-                        <td>${c.nome}</td>
-                        <td>${c.email}</td>
-                        <td><strong>${c.produto}</strong></td>
-                        <td>${c.data}</td>
-                    </tr>
-                `).join('');
-        }
-
-        // Função para resgatar um pacote
-        function comprar(item) {
-            const nomeAtual = localStorage.getItem('usuarioNome') || 'Usuário';
-            const emailAtual = localStorage.getItem('usuarioEmail') || 'sem@email';
-
-            let compras = JSON.parse(localStorage.getItem('compras')) || [];
-            compras.push({
-                nome: nomeAtual,
-                email
+            // Redireciona para a loja (Certifique-se que o arquivo se chama loja.html no GitHub)
+            window.location.href = "loja.html";
+        });
+    </script>
+</body>
+</html>

@@ -2,126 +2,105 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vault AI - Loja</title>
     <style>
-        /* Seu estilo aqui, mantendo o design original */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background: #f8f9fa; padding: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .header { text-align: center; margin-bottom: 2rem; }
+        .badge-adm { background: #d63031; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .produto { border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; text-align: center; }
+        button { background: #0984e3; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+        
+        /* Painel Admin */
+        .admin-panel { display: none; margin-top: 3rem; border-top: 2px solid #eee; padding-top: 2rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
+        th { background: #f4f4f4; }
+        .sair { display: block; text-align: center; margin-top: 2rem; color: #e74c3c; text-decoration: none; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <header>
-            <h1 id="boasVindas">Loja Vault AI</h1>
-            <p id="statusUser"></p>
-        </header>
+        <div class="header">
+            <h1 id="boasVindas">Olá!</h1>
+            <div id="statusUser"></div>
+        </div>
 
-        <!-- Produtos -->
-        <div class="grid-loja">
+        <div class="grid">
             <div class="produto">
                 <h3>Pacote Basic</h3>
-                <span class="preco">500 Créditos</span>
+                <p>500 Créditos</p>
                 <button onclick="comprar('Basic')">Resgatar</button>
             </div>
             <div class="produto">
                 <h3>Pacote Pro</h3>
-                <span class="preco">2000 Créditos</span>
+                <p>2000 Créditos</p>
                 <button onclick="comprar('Pro')">Resgatar</button>
             </div>
         </div>
 
-        <!-- Painel de Admin (inicialmente oculto) -->
-        <div id="adminPanel" style="display: none;">
-            <h2 style="color: #d63031;">Painel do Administrador</h2>
-
-            <h3 class="section">Registros de Acessos</h3>
+        <div id="adminPanel" class="admin-panel">
+            <h2 style="color: #d63031;">Relatório do Administrador</h2>
             <table>
                 <thead>
-                    <tr><th>Nome</th><th>E-mail</th><th>Data/Hora</th></tr>
+                    <tr>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Ação/Plano</th>
+                        <th>Data</th>
+                    </tr>
                 </thead>
-                <tbody id="listaAcessos"></tbody>
-            </table>
-
-            <h3 class="section">Planos Resgatados</h3>
-            <table>
-                <thead>
-                    <tr><th>Nome</th><th>E-mail</th><th>Plano</th><th>Data/Hora</th></tr>
-                </thead>
-                <tbody id="listaCompras"></tbody>
+                <tbody id="listaAtividade"></tbody>
             </table>
         </div>
 
-        <!-- Sair do sistema -->
         <a href="index.html" class="sair" onclick="localStorage.clear()">Sair do sistema</a>
     </div>
 
     <script>
         const nome = localStorage.getItem('usuarioNome');
         const role = localStorage.getItem('role');
+        const email = localStorage.getItem('usuarioEmail');
 
-        if (!nome) {
-            window.location.href = "index.html";  // Redireciona para o login se não houver usuário logado
-        }
+        if (!nome) { window.location.href = "index.html"; }
 
-        // Exibe boas-vindas com o nome do usuário
         document.getElementById('boasVindas').innerText = `Olá, ${nome}!`;
 
-        // Verifica se o usuário é um admin
         if (role === 'admin') {
-            // Exibe o painel de administrador
             document.getElementById('adminPanel').style.display = 'block';
             document.getElementById('statusUser').innerHTML = '<span class="badge-adm">ADMINISTRADOR</span>';
-            carregarDadosAdmin();  // Carrega os dados do administrador
+            atualizarPainel();
         }
 
-        // Função para carregar os dados do administrador
-        function carregarDadosAdmin() {
-            const acessosBody = document.getElementById('listaAcessos');
-            const comprasBody = document.getElementById('listaCompras');
-
-            const acessos = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
-            const compras = JSON.parse(localStorage.getItem('compras')) || [];
-
-            // Preenche a tabela de acessos
-            acessosBody.innerHTML = acessos.length === 0 
-                ? '<tr><td colspan="3" style="text-align:center;">Nenhum acesso registrado ainda.</td></tr>'
-                : acessos.map(u => `
-                    <tr>
-                        <td>${u.nome}</td>
-                        <td>${u.email}</td>
-                        <td>${u.data}</td>
-                    </tr>
-                `).join('');
-
-            // Preenche a tabela de compras
-            comprasBody.innerHTML = compras.length === 0 
-                ? '<tr><td colspan="4" style="text-align:center;">Nenhum plano resgatado ainda.</td></tr>'
-                : compras.map(c => `
-                    <tr>
-                        <td>${c.nome}</td>
-                        <td>${c.email}</td>
-                        <td><strong>${c.produto}</strong></td>
-                        <td>${c.data}</td>
-                    </tr>
-                `).join('');
-        }
-
-        // Função para resgatar um pacote
-        function comprar(item) {
-            const nomeAtual = localStorage.getItem('usuarioNome') || 'Usuário';
-            const emailAtual = localStorage.getItem('usuarioEmail') || 'sem@email';
-
+        function comprar(plano) {
             let compras = JSON.parse(localStorage.getItem('compras')) || [];
             compras.push({
-                nome: nomeAtual,
-                email: emailAtual,
-                produto: item,
-                data: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+                nome: nome,
+                email: email,
+                plano: plano,
+                data: new Date().toLocaleString('pt-BR')
             });
             localStorage.setItem('compras', JSON.stringify(compras));
+            alert(`Sucesso! Você resgatou o ${plano}.`);
+            if (role === 'admin') atualizarPainel();
+        }
 
-            alert(`Pacote ${item} resgatado com sucesso!`);
-
-            if (role === 'admin') carregarDadosAdmin(); // Atualiza os dados no painel se for admin
+        function atualizarPainel() {
+            const lista = document.getElementById('listaAtividade');
+            const compras = JSON.parse(localStorage.getItem('compras')) || [];
+            
+            lista.innerHTML = compras.map(c => `
+                <tr>
+                    <td>${c.nome}</td>
+                    <td>${c.email}</td>
+                    <td><strong>${c.plano}</strong></td>
+                    <td>${c.data}</td>
+                </tr>
+            `).reverse().join(''); // Mostra os mais recentes primeiro
         }
     </script>
 </body>
