@@ -1,27 +1,45 @@
-<form id="loginForm">
-    <input type="text" id="name" placeholder="Seu Nome" required>
-    <input type="email" id="email" placeholder="Seu E-mail" required>
-    <button type="submit">Acessar Sistema</button>
-</form>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault AI - Login</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0b0e14; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: #151921; padding: 2.5rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-width: 380px; border: 1px solid #232a35; }
+        h2 { text-align: center; color: #00a8ff; margin-bottom: 1.5rem; letter-spacing: 1px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #1e232d; border: 1px solid #2d343e; border-radius: 8px; color: white; box-sizing: border-box; transition: 0.3s; }
+        input:focus { border-color: #00a8ff; outline: none; background: #252b36; }
+        button { width: 100%; padding: 12px; background: #00a8ff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; transition: 0.3s; }
+        button:hover { background: #0086cc; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 168, 255, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>VAULT AI</h2>
+        <form id="loginForm">
+            <input type="text" id="name" placeholder="Seu Nome" required>
+            <input type="email" id="email" placeholder="Seu E-mail" required>
+            <button type="submit">ACESSAR SISTEMA</button>
+        </form>
+    </div>
 
-<script>
-    const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";
+    <script>
+        const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('name').value;
+            const email = document.getElementById('email').value.toLowerCase();
+            localStorage.setItem('usuarioNome', nome);
+            localStorage.setItem('usuarioEmail', email);
+            localStorage.setItem('role', (email === ADM_EMAIL) ? 'admin' : 'user');
 
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const nome = document.getElementById('name').value;
-        const email = document.getElementById('email').value.toLowerCase();
+            let banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
+            banco.push({ nome, email, data: new Date().toLocaleString('pt-BR') });
+            localStorage.setItem('bancoUsuarios', JSON.stringify(banco));
 
-        // Salva Sessão
-        localStorage.setItem('usuarioNome', nome);
-        localStorage.setItem('usuarioEmail', email);
-        localStorage.setItem('role', (email === ADM_EMAIL) ? 'admin' : 'user');
-
-        // Registro de LOG (para o ADM ver depois)
-        let banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
-        banco.push({ nome, email, data: new Date().toLocaleString('pt-BR') });
-        localStorage.setItem('bancoUsuarios', JSON.stringify(banco));
-
-        window.location.href = "loja.html";
-    });
-</script>
+            window.location.href = "loja.html";
+        });
+    </script>
+</body>
+</html>

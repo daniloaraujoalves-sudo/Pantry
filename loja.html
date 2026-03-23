@@ -1,58 +1,107 @@
-<h1 id="boasVindas"></h1>
-<div id="statusUser"></div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault AI - Dashboard</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0b0e14; color: #e1e1e1; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #232a35; padding-bottom: 20px; }
+        h1 { color: #00a8ff; font-size: 24px; }
+        
+        /* Grid e Produtos */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .produto { background: #151921; padding: 30px; border-radius: 12px; text-align: center; border: 1px solid #232a35; transition: 0.3s; }
+        .produto:hover { border-color: #00a8ff; transform: translateY(-5px); }
+        .produto h3 { margin: 0 0 10px 0; color: white; }
+        .preco { font-size: 28px; color: #00a8ff; font-weight: bold; display: block; margin-bottom: 20px; }
+        
+        .btn { padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; transition: 0.3s; width: 100%; }
+        .btn-buy { background: #00a8ff; color: white; }
+        .btn-buy:hover { background: #0086cc; }
 
-<div class="grid">
-    <button onclick="comprar('Pacote Basic')">Comprar Basic (500)</button>
-    <button onclick="comprar('Pacote Pro')">Comprar Pro (2000)</button>
-</div>
+        /* Painel Administrativo */
+        .admin-panel { display: none; margin-top: 40px; background: #151921; border: 1px solid #00a8ff; border-radius: 12px; padding: 20px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; padding: 12px; background: #1e232d; color: #00a8ff; font-size: 13px; }
+        td { padding: 12px; border-bottom: 1px solid #232a35; font-size: 14px; }
+        .btn-danger { background: #eb4d4b; color: white; width: auto; padding: 8px 15px; }
+        
+        .sair { display: block; text-align: center; margin-top: 40px; color: #636e72; text-decoration: none; }
+    </style>
+</head>
+<body>
 
-<hr>
+<div class="container">
+    <div class="header">
+        <h1 id="boasVindas">Bem-vindo</h1>
+        <div id="statusUser"></div>
+    </div>
 
-<div id="adminPanel" style="display:none; border: 2px solid red; padding: 10px;">
-    <h2>🛠 Painel do Administrador</h2>
-    <button onclick="limparDados()">Limpar Histórico</button>
-    <table border="1">
-        <thead>
-            <tr><th>Usuário</th><th>E-mail</th><th>Data</th></tr>
-        </thead>
-        <tbody id="tabelaLogs"></tbody>
-    </table>
+    <div class="grid">
+        <div class="produto">
+            <h3>PACOTE BASIC</h3>
+            <span class="preco">500 CRÉDITOS</span>
+            <button class="btn btn-buy" onclick="comprar('Basic')">RESGATAR AGORA</button>
+        </div>
+        <div class="produto">
+            <h3>PACOTE PRO</h3>
+            <span class="preco">2.000 CRÉDITOS</span>
+            <button class="btn btn-buy" onclick="comprar('Pro')">RESGATAR AGORA</button>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-header">
+            <h2 style="color: #00a8ff; margin: 0;">🛠 GESTÃO DO SISTEMA</h2>
+            <button class="btn btn-danger" onclick="limparDados()">LIMPAR LOGS</button>
+        </div>
+        <table>
+            <thead>
+                <tr><th>USUÁRIO</th><th>E-MAIL</th><th>ACESSO EM</th></tr>
+            </thead>
+            <tbody id="tabelaLogs"></tbody>
+        </table>
+    </div>
+
+    <a href="index.html" class="sair" onclick="localStorage.clear()">Sair da Conta</a>
 </div>
 
 <script>
     const nome = localStorage.getItem('usuarioNome');
-    const email = localStorage.getItem('usuarioEmail');
     const role = localStorage.getItem('role');
 
     if (!nome) window.location.href = "index.html";
     document.getElementById('boasVindas').innerText = `Olá, ${nome}!`;
 
-    // --- FUNÇÃO: INTERFACE DO ADM ---
     if (role === 'admin') {
         document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('statusUser').innerHTML = "<b>MODO: ADMINISTRADOR</b>";
+        document.getElementById('statusUser').innerHTML = '<span style="color:#00a8ff; font-weight:bold;">MODO ADMIN</span>';
         carregarLogs();
     }
 
-    // --- FUNÇÃO: COMPRA ---
+    // FUNÇÃO: COMPRA
     function comprar(plano) {
-        alert(`Sucesso! ${nome}, você resgatou o ${plano}.`);
-        // Aqui você pode adicionar lógica para salvar a compra no localStorage também
+        alert(`Sucesso! Plano ${plano} resgatado.`);
     }
 
-    // --- FUNÇÃO: ADM (Lógica de dados) ---
+    // FUNÇÃO: ADM (Lógica)
     function carregarLogs() {
         const logs = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
-        const tabela = document.getElementById('tabelaLogs');
-        tabela.innerHTML = logs.map(l => `
+        document.getElementById('tabelaLogs').innerHTML = logs.map(l => `
             <tr><td>${l.nome}</td><td>${l.email}</td><td>${l.data}</td></tr>
-        `).join('');
+        `).reverse().join('');
     }
 
     function limparDados() {
-        if(confirm("Apagar logs?")) {
+        if(confirm("Deseja apagar todos os registros de acesso?")) {
             localStorage.removeItem('bancoUsuarios');
             location.reload();
         }
     }
 </script>
+
+</body>
+</html>
