@@ -1,59 +1,27 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vault AI - Login</title>
-    <style>
-        body { font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
-        .login-card { background: white; padding: 2rem; border-radius: 12px; shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
-        button { width: 100%; padding: 10px; background: #0984e3; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div class="login-card">
-        <h2>Entrar no Vault AI</h2>
-        <form id="dataForm">
-            <input type="text" id="name" placeholder="Seu Nome" required>
-            <input type="email" id="email" placeholder="Seu E-mail" required>
-            <button type="submit">Acessar Loja</button>
-        </form>
-    </div>
+<form id="loginForm">
+    <input type="text" id="name" placeholder="Seu Nome" required>
+    <input type="email" id="email" placeholder="Seu E-mail" required>
+    <button type="submit">Acessar Sistema</button>
+</form>
 
-    <script>
-        const form = document.getElementById('dataForm');
-        const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";
+<script>
+    const ADM_EMAIL = "danilo.araujo.alves@escola.pr.gov.br";
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const nome = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim().toLowerCase();
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nome = document.getElementById('name').value;
+        const email = document.getElementById('email').value.toLowerCase();
 
-            // Salva dados da sessão
-            localStorage.setItem('usuarioNome', nome);
-            localStorage.setItem('usuarioEmail', email);
+        // Salva Sessão
+        localStorage.setItem('usuarioNome', nome);
+        localStorage.setItem('usuarioEmail', email);
+        localStorage.setItem('role', (email === ADM_EMAIL) ? 'admin' : 'user');
 
-            // Registro de logs para o Admin ver depois
-            let banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
-            banco.push({
-                nome: nome,
-                email: email,
-                data: new Date().toLocaleString('pt-BR')
-            });
-            localStorage.setItem('bancoUsuarios', JSON.stringify(banco));
+        // Registro de LOG (para o ADM ver depois)
+        let banco = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
+        banco.push({ nome, email, data: new Date().toLocaleString('pt-BR') });
+        localStorage.setItem('bancoUsuarios', JSON.stringify(banco));
 
-            // Define permissão
-            if (email === ADM_EMAIL) {
-                localStorage.setItem('role', 'admin');
-            } else {
-                localStorage.setItem('role', 'user');
-            }
-
-            // Redireciona para a loja (Certifique-se que o arquivo se chama loja.html no GitHub)
-            window.location.href = "loja.html";
-        });
-    </script>
-</body>
-</html>
+        window.location.href = "loja.html";
+    });
+</script>

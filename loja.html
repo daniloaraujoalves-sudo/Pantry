@@ -1,191 +1,58 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vault AI - Loja & Gestão</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #f0f2f5; padding: 20px; color: #333; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        
-        /* Cabeçalho */
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #f0f2f5; padding-bottom: 20px; }
-        .badge-adm { background: #d63031; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; letter-spacing: 1px; }
+<h1 id="boasVindas"></h1>
+<div id="statusUser"></div>
 
-        /* Grid de Produtos */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .produto { border: 2px solid #eee; padding: 25px; border-radius: 12px; text-align: center; transition: 0.3s; }
-        .produto:hover { border-color: #0984e3; transform: translateY(-5px); }
-        .produto h3 { margin-bottom: 10px; color: #2d3436; }
-        .preco { font-size: 24px; color: #0984e3; font-weight: bold; margin-bottom: 15px; display: block; }
-        
-        /* Botões */
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; width: 100%; }
-        .btn-buy { background: #0984e3; color: white; }
-        .btn-buy:hover { background: #074b83; }
-        .btn-danger { background: #ff7675; color: white; width: auto; padding: 5px 10px; font-size: 12px; }
-        .btn-danger:hover { background: #d63031; }
-        .btn-export { background: #00b894; color: white; width: auto; margin-bottom: 10px; margin-right: 10px; padding: 8px 15px; }
+<div class="grid">
+    <button onclick="comprar('Pacote Basic')">Comprar Basic (500)</button>
+    <button onclick="comprar('Pacote Pro')">Comprar Pro (2000)</button>
+</div>
 
-        /* Painel Administrativo */
-        .admin-panel { display: none; margin-top: 40px; padding: 25px; background: #fdfdfd; border: 1px solid #fab1a0; border-radius: 12px; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
-        th { background: #f8f9fa; color: #636e72; text-transform: uppercase; font-size: 12px; }
-        tr:hover { background: #fff9f9; }
+<hr>
 
-        .sair { display: block; text-align: center; margin-top: 30px; color: #b2bec3; text-decoration: none; font-size: 14px; }
-        .sair:hover { color: #d63031; }
-    </style>
-</head>
-<body>
+<div id="adminPanel" style="display:none; border: 2px solid red; padding: 10px;">
+    <h2>🛠 Painel do Administrador</h2>
+    <button onclick="limparDados()">Limpar Histórico</button>
+    <table border="1">
+        <thead>
+            <tr><th>Usuário</th><th>E-mail</th><th>Data</th></tr>
+        </thead>
+        <tbody id="tabelaLogs"></tbody>
+    </table>
+</div>
 
-    <div class="container">
-        <div class="header">
-            <h1 id="boasVindas">Bem-vindo!</h1>
-            <div id="statusUser" style="margin-top: 10px;"></div>
-        </div>
+<script>
+    const nome = localStorage.getItem('usuarioNome');
+    const email = localStorage.getItem('usuarioEmail');
+    const role = localStorage.getItem('role');
 
-        <div class="grid">
-            <div class="produto">
-                <h3>Pacote Basic</h3>
-                <span class="preco">500 Créditos</span>
-                <button class="btn btn-buy" onclick="comprar('Basic')">Resgatar Agora</button>
-            </div>
-            <div class="produto">
-                <h3>Pacote Pro</h3>
-                <span class="preco">2000 Créditos</span>
-                <button class="btn btn-buy" onclick="comprar('Pro')">Resgatar Agora</button>
-            </div>
-        </div>
+    if (!nome) window.location.href = "index.html";
+    document.getElementById('boasVindas').innerText = `Olá, ${nome}!`;
 
-        <div id="adminPanel" class="admin-panel">
-            <div class="admin-header">
-                <h2 style="color: #d63031;">🛠 Gestão do Sistema</h2>
-                <div>
-                    <button class="btn btn-export" onclick="exportarCSV()">📥 Baixar Relatório</button>
-                    <button class="btn btn-danger" style="padding: 8px 15px;" onclick="limparTudo()">🗑 Limpar Tudo</button>
-                </div>
-            </div>
+    // --- FUNÇÃO: INTERFACE DO ADM ---
+    if (role === 'admin') {
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('statusUser').innerHTML = "<b>MODO: ADMINISTRADOR</b>";
+        carregarLogs();
+    }
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Usuário</th>
-                        <th>E-mail</th>
-                        <th>Plano</th>
-                        <th>Data/Hora</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="listaAtividade"></tbody>
-            </table>
-        </div>
+    // --- FUNÇÃO: COMPRA ---
+    function comprar(plano) {
+        alert(`Sucesso! ${nome}, você resgatou o ${plano}.`);
+        // Aqui você pode adicionar lógica para salvar a compra no localStorage também
+    }
 
-        <a href="index.html" class="sair" onclick="localStorage.clear()">Logoff / Sair do Sistema</a>
-    </div>
+    // --- FUNÇÃO: ADM (Lógica de dados) ---
+    function carregarLogs() {
+        const logs = JSON.parse(localStorage.getItem('bancoUsuarios')) || [];
+        const tabela = document.getElementById('tabelaLogs');
+        tabela.innerHTML = logs.map(l => `
+            <tr><td>${l.nome}</td><td>${l.email}</td><td>${l.data}</td></tr>
+        `).join('');
+    }
 
-    <script>
-        const nome = localStorage.getItem('usuarioNome');
-        const role = localStorage.getItem('role');
-        const email = localStorage.getItem('usuarioEmail');
-
-        // Bloqueio de acesso sem login
-        if (!nome) { window.location.href = "index.html"; }
-
-        document.getElementById('boasVindas').innerText = `Olá, ${nome}! 👋`;
-
-        // Ativa Interface de ADM
-        if (role === 'admin') {
-            document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('statusUser').innerHTML = '<span class="badge-adm">MODO ADMINISTRADOR</span>';
-            atualizarPainel();
+    function limparDados() {
+        if(confirm("Apagar logs?")) {
+            localStorage.removeItem('bancoUsuarios');
+            location.reload();
         }
-
-        function comprar(plano) {
-            let compras = JSON.parse(localStorage.getItem('compras')) || [];
-            compras.push({
-                id: Date.now(), // ID único para poder excluir depois
-                nome: nome,
-                email: email,
-                plano: plano,
-                data: new Date().toLocaleString('pt-BR')
-            });
-            localStorage.setItem('compras', JSON.stringify(compras));
-            alert(`Plano ${plano} resgatado com sucesso!`);
-            if (role === 'admin') atualizarPainel();
-        }
-
-        function atualizarPainel() {
-            const lista = document.getElementById('listaAtividade');
-            const compras = JSON.parse(localStorage.getItem('compras')) || [];
-            
-            if (compras.length === 0) {
-                lista.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Nenhum registro encontrado.</td></tr>';
-                return;
-            }
-
-            lista.innerHTML = compras.map((c, index) => `
-                <tr>
-                    <td>${c.nome}</td>
-                    <td>${c.email}</td>
-                    <td><strong>${c.plano}</strong></td>
-                    <td>${c.data}</td>
-                    <td>
-                        <button class="btn btn-danger" onclick="excluirItem(${c.id})">Excluir</button>
-                    </td>
-                </tr>
-            `).reverse().join('');
-        }
-
-        function excluirItem(id) {
-            if (confirm("Deseja remover este registro?")) {
-                let compras = JSON.parse(localStorage.getItem('compras')) || [];
-                compras = compras.filter(item => item.id !== id);
-                localStorage.setItem('compras', JSON.stringify(compras));
-                atualizarPainel();
-            }
-        }
-
-        function limparTudo() {
-            if (confirm("ATENÇÃO: Isso apagará TODO o histórico de compras. Continuar?")) {
-                localStorage.removeItem('compras');
-                atualizarPainel();
-            }
-        }
-
-        function exportarCSV() {
-            const compras = JSON.parse(localStorage.getItem('compras')) || [];
-            if (compras.length === 0) return alert("Não há dados para exportar.");
-
-            let csv = "Nome;Email;Plano;Data\n";
-            compras.forEach(c => {
-                csv += `${c.nome};${c.email};${c.plano};${c.data}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute("download", "relatorio_vault_ai.csv");
-            link.click();
-        }
-        // Procure essa parte no final da sua loja.html e substitua:
-const role = localStorage.getItem('role');
-const emailLogado = localStorage.getItem('usuarioEmail');
-const ADM_AUTORIZADO = "danilo.araujo.alves@escola.pr.gov.br";
-
-// Verifica se é admin por dois caminhos para não ter erro
-if (role === 'admin' || emailLogado === ADM_AUTORIZADO) {
-    console.log("Admin detectado!"); // Isso ajuda a ver no F12 se funcionou
-    document.getElementById('adminPanel').style.display = 'block';
-    document.getElementById('statusUser').innerHTML = '<span class="badge-adm">MODO ADMINISTRADOR</span>';
-    atualizarPainel();
-} else {
-    console.log("Usuário comum detectado.");
-}
-    </script>
-</body>
-</html>
+    }
+</script>
