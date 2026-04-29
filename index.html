@@ -2,48 +2,91 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Terraria - Versão Completa</title>
+    <title>Mini Terraria - Biomas Colossais</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
-        canvas { display: block; cursor: crosshair; }
-        
-        .info { 
-            position: absolute; top: 10px; left: 10px; 
-            color: white; text-shadow: 1px 1px 2px black; 
-            background: rgba(0,0,0,0.5); padding: 12px; border-radius: 8px;
-            pointer-events: none; z-index: 10;
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: #000; 
+            font-family: 'Segoe UI', sans-serif; 
         }
 
-        #minimap-container {
-            position: absolute; top: 10px; right: 10px;
-            width: 200px; height: 120px;
-            border: 2px solid #555; background: rgba(0, 0, 0, 0.85);
-            border-radius: 5px; overflow: hidden; z-index: 100;
+        canvas { 
+            display: block; 
+            cursor: crosshair; 
         }
-        #minimap { width: 100%; height: 100%; image-rendering: pixelated; }
+
+        .info { 
+            position: absolute; 
+            top: 10px; 
+            left: 10px; 
+            color: white; 
+            text-shadow: 1px 1px 2px black; 
+            background: rgba(0,0,0,0.5); 
+            padding: 12px; 
+            border-radius: 8px;
+            pointer-events: none; 
+            z-index: 10;
+        }
 
         #inventory-ui {
-            position: absolute; bottom: 20px; left: 50%;
-            transform: translateX(-50%); display: flex; gap: 8px;
-            background: rgba(0, 0, 0, 0.7); padding: 10px;
-            border-radius: 12px; border: 2px solid #444; z-index: 100;
+            position: absolute; 
+            bottom: 20px; 
+            left: 50%;
+            transform: translateX(-50%); 
+            display: flex; 
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.7); 
+            padding: 10px;
+            border-radius: 12px; 
+            border: 2px solid #444; 
+            z-index: 100;
         }
 
         .slot {
-            width: 45px; height: 45px; background: #333;
-            border: 2px solid #666; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
+            width: 45px; 
+            height: 45px; 
+            background: #333;
+            border: 2px solid #666; 
+            border-radius: 4px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
             position: relative;
         }
-        .slot.selected { border-color: #fff; box-shadow: 0 0 10px #fff; background: #555; }
+
+        .slot.selected { 
+            border-color: #fff; 
+            box-shadow: 0 0 10px #fff; 
+            background: #555; 
+        }
+
         .slot canvas { width: 30px; height: 30px; image-rendering: pixelated; }
         .count { position: absolute; bottom: 2px; right: 4px; color: white; font-size: 10px; font-weight: bold; }
+
+        #minimap-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 200px;
+            height: 150px;
+            border: 2px solid #888;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+        }
+        #minimap {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
     </style>
 </head>
 <body>
 
-<div class="info" id="debug-info">Iniciando mundo...</div>
+<div class="info" id="debug-info">Gerando Biomas Colossais...</div>
 
 <div id="minimap-container">
     <canvas id="minimap"></canvas>
@@ -60,31 +103,38 @@
 <canvas id="gameCanvas"></canvas>
 
 <script>
-/** CONFIGURAÇÕES GERAIS **/
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const minimapCanvas = document.getElementById('minimap');
-const mCtx = minimapCanvas.getContext('2d');
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const minimapCanvas = document.getElementById('minimap');
+const minimapCtx = minimapCanvas.getContext('2d');
+const MINIMAP_WIDTH = 200;
+const MINIMAP_HEIGHT = 150;
+const MINIMAP_SCALE = 4; 
+
+minimapCanvas.width = MINIMAP_WIDTH;
+minimapCanvas.height = MINIMAP_HEIGHT;
+
 const TILE_SIZE = 40;
-const WORLD_COLS = 500; 
-const WORLD_ROWS = 80;
-const REACH = TILE_SIZE * 5;
+const WORLD_WIDTH_PX = 600000; // Seu mundo colossal original
+const WORLD_COLS = Math.floor(WORLD_WIDTH_PX / TILE_SIZE);
+const WORLD_ROWS = 90;
+const REACH_DISTANCE = TILE_SIZE * 5;
 
-// IDs: 1:Grama, 2:Terra, 3:Pedra, 4:Madeira, 5:Folhas, 6:Areia, 7:Água, 8:Ferro, 9:Carvão
-const DURABILITY = { 1:15, 2:15, 3:40, 4:25, 5:10, 6:12, 7:999, 8:60, 9:50 };
-const world = [], treeWorld = [], worldDamage = [];
-const textures = {};
+// IDs: 1:Grama, 2:Terra, 3:Pedra, 4:Madeira, 5:Folha, 6:Areia, 7:Água, 8:Ferro, 9:Carvão
+const DURABILITY = { 1: 15, 2: 15, 3: 40, 4: 25, 5: 10, 6: 12, 7: 999, 8: 60, 9: 45 };
 
-/** INICIALIZAÇÃO DE TEXTURAS (PIXEL ART) **/
+let gameTime = 2000;
+const DAY_LENGTH = 15000;
+const tex = {};
+
 function initTextures() {
     const colors = {
         1: ["#4caf50", "#2e7d32", "grass"], 2: ["#795548", "#5d4037", "block"],
         3: ["#9e9e9e", "#616161", "block"], 4: ["#5d4037", "#3e2723", "block"],
-        5: ["#2e7d32", "#1b5e20", "leaves"],6: ["#f4d03f", "#d4ac0d", "block"],
+        5: ["#2e7d32", "#1b5e20", "leaves"], 6: ["#f4d03f", "#d4ac0d", "block"],
         7: ["#3498db", "#2980b9", "water"], 8: ["#dcdde1", "#718093", "block"],
         9: ["#2f3640", "#000000", "block"]
     };
@@ -94,207 +144,235 @@ function initTextures() {
         const tCtx = tCanvas.getContext('2d');
         tCtx.fillStyle = colors[id][0];
         tCtx.fillRect(0, 0, 16, 16);
-        tCtx.globalAlpha = 0.3;
         tCtx.fillStyle = colors[id][1];
         if(colors[id][2] === "grass") tCtx.fillRect(0, 0, 16, 5);
-        else tCtx.fillRect(0, 12, 16, 4);
-        textures[id] = tCanvas;
+        if(colors[id][2] === "block") { tCtx.globalAlpha = 0.3; tCtx.fillRect(0, 13, 16, 3); tCtx.fillRect(13, 0, 3, 16); }
+        if(colors[id][2] === "water") { tCtx.globalAlpha = 0.5; tCtx.fillRect(0, 0, 16, 8); }
+        tex[id] = tCanvas;
     }
 }
 
-/** GERAÇÃO DE MUNDO **/
+let world = [], worldDamage = [], treeWorld = [];
+
 function getBiome(x) {
-    if (x < 60 || x > WORLD_COLS - 60) return "OCEANO";
-    const noise = Math.sin(x * 0.05);
-    if (noise > 0.6) return "AMAZONIA";
-    if (noise < -0.6) return "DESERTO";
+    if (x < 1500 || x > WORLD_COLS - 1500) return "OCEANO";
+    const v = Math.sin(x * 0.01);
+    if (v > 0.65) return "AMAZONIA";
+    if (v < -0.65) return "DESERTO";
     return "FLORESTA";
 }
 
 function initWorld() {
     for (let y = 0; y < WORLD_ROWS; y++) {
         world[y] = new Int8Array(WORLD_COLS);
-        treeWorld[y] = new Int8Array(WORLD_COLS);
         worldDamage[y] = new Int16Array(WORLD_COLS);
+        treeWorld[y] = new Int8Array(WORLD_COLS);
     }
 
     for (let x = 0; x < WORLD_COLS; x++) {
         const biome = getBiome(x);
-        let surfaceY = 40 + Math.floor(Math.sin(x * 0.1) * 5);
-        if(biome === "OCEANO") surfaceY = 55;
-        if(biome === "AMAZONIA") surfaceY = 30 + Math.floor(Math.sin(x * 0.2) * 8);
+        let surfaceY;
+        if (biome === "OCEANO") surfaceY = 58 + Math.floor(Math.sin(x * 0.04) * 4);
+        else if (biome === "DESERTO") surfaceY = 42 + Math.floor(Math.sin(x * 0.06) * 3);
+        else if (biome === "AMAZONIA") surfaceY = 28 + Math.floor(Math.sin(x * 0.09) * 11);
+        else surfaceY = 35 + Math.floor(Math.sin(x * 0.08) * 6);
+
+        surfaceY = Math.max(15, Math.min(WORLD_ROWS - 30, surfaceY));
 
         for (let y = 0; y < WORLD_ROWS; y++) {
             if (y < surfaceY) {
-                if(biome === "OCEANO" && y > 45) world[y][x] = 7; // Água
+                world[y][x] = 0;
                 continue;
             }
-            let type = 3; // Pedra padrão
-            if (y === surfaceY) type = (biome === "DESERTO" || biome === "OCEANO") ? 6 : 1;
-            else if (y < surfaceY + 6) type = (biome === "DESERTO") ? 6 : 2;
-            
-            // Minérios
-            if (y > surfaceY + 15 && Math.random() < 0.03) type = 8;
-            else if (y > surfaceY + 20 && Math.random() < 0.04) type = 9;
-
+            let type = 3; 
+            if (y === surfaceY) {
+                type = (biome === "OCEANO") ? 7 : (biome === "DESERTO" ? 6 : 1);
+            } else if (y < surfaceY + 8) {
+                type = (biome === "DESERTO") ? 6 : 2;
+            } else if (y < surfaceY + 25) {
+                type = 2;
+            } else if (y > surfaceY + 40 && Math.random() < 0.02) {
+                type = 8;
+            } else if (y > surfaceY + 50 && Math.random() < 0.03) {
+                type = 9;
+            }
             world[y][x] = type;
-            worldDamage[y][x] = DURABILITY[type];
+            worldDamage[y][x] = DURABILITY[type] || 0;
         }
-        
-        // Árvores
-        if (x % 7 === 0 && (biome === "FLORESTA" || biome === "AMAZONIA") && Math.random() > 0.3) {
-            let h = biome === "AMAZONIA" ? 10 : 5;
-            for(let i=1; i<=h; i++) if(surfaceY-i >= 0) treeWorld[surfaceY-i][x] = 4;
-            // Copa simples
-            for(let ly=-2; ly<=0; ly++) 
-                for(let lx=-2; lx<=2; lx++) 
-                    if(surfaceY-h+ly >=0) treeWorld[surfaceY-h+ly][x+lx] = 5;
+    }
+    generateTrees();
+}
+
+function generateTrees() {
+    for (let x = 10; x < WORLD_COLS - 10; x += Math.floor(Math.random() * 12) + 8) {
+        if (Math.random() > 0.4 && (getBiome(x) === "FLORESTA" || getBiome(x) === "AMAZONIA")) {
+            let groundY = -1;
+            for (let y = 0; y < WORLD_ROWS; y++) {
+                if (world[y][x] === 1) { groundY = y; break; }
+            }
+            if (groundY > 15) {
+                let h = (getBiome(x) === "AMAZONIA" ? 10 : 4) + Math.floor(Math.random() * 4);
+                for (let i = 1; i <= h; i++) {
+                    if (groundY - i >= 0) treeWorld[groundY - i][x] = 4;
+                }
+                let leafY = groundY - h;
+                for (let ly = -3; ly <= 0; ly++) {
+                    for (let lx = -2; lx <= 2; lx++) {
+                        if (Math.abs(lx) + Math.abs(ly + 1) < 4) {
+                            if (treeWorld[leafY + ly] && (leafY + ly) >= 0) treeWorld[leafY + ly][x + lx] = 5;
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
-/** JOGADOR E FÍSICA **/
-const player = { x: (WORLD_COLS/2)*TILE_SIZE, y: 0, w: 22, h: 38, vx: 0, vy: 0, speed: 5, jump: -10, grounded: false };
-const keys = {};
-const inventory = { 1:10, 2:10, 3:0, 4:0, 6:0 };
+const player = { x: 80000, y: 0, w: 20, h: 36, vx: 0, vy: 0, speed: 6, jump: -12, onGround: false };
+let inventory = { 1: 50, 2: 50, 3: 0, 4: 50, 6: 50, 8: 0, 9: 0 };
 let selectedSlot = 1;
+const keys = {};
 const camera = { x: 0, y: 0 };
+let mousePos = { x: 0, y: 0 }, isMouseDown = false, isRightMouseDown = false;
 
 function isSolid(px, py) {
     const gx = Math.floor(px / TILE_SIZE), gy = Math.floor(py / TILE_SIZE);
-    if (gx < 0 || gx >= WORLD_COLS || gy < 0 || gy >= WORLD_ROWS) return false;
+    if (gx < 0 || gx >= WORLD_COLS || gy < 0) return false;
+    if (gy >= WORLD_ROWS) return true;
     return world[gy][gx] !== 0 && world[gy][gx] !== 7;
 }
 
-window.onkeydown = e => { 
+window.onkeydown = (e) => { 
     keys[e.code] = true; 
-    if(["1","2","3","4","6"].includes(e.key)) { selectedSlot = parseInt(e.key); updateUI(); }
+    if (["1","2","3","4","6"].includes(e.key)) { selectedSlot = parseInt(e.key); updateUI(); } 
 };
-window.onkeyup = e => keys[e.code] = false;
+window.onkeyup = (e) => keys[e.code] = false;
+canvas.onmousedown = (e) => { if (e.button === 0) isMouseDown = true; if (e.button === 2) isRightMouseDown = true; };
+window.onmouseup = () => { isMouseDown = false; isRightMouseDown = false; };
+canvas.onmousemove = (e) => { mousePos.x = e.clientX + camera.x; mousePos.y = e.clientY + camera.y; };
+canvas.oncontextmenu = (e) => e.preventDefault();
 
-/** LOOP DE ATUALIZAÇÃO **/
-let mouse = { x: 0, y: 0, down: false, rightDown: false };
-canvas.onmousedown = e => { if(e.button === 0) mouse.down = true; if(e.button === 2) mouse.rightDown = true; };
-window.onmouseup = () => { mouse.down = false; mouse.rightDown = false; };
-canvas.onmousemove = e => { mouse.x = e.clientX + camera.x; mouse.y = e.clientY + camera.y; };
-canvas.oncontextmenu = e => e.preventDefault();
+function updateMinimap() {
+    minimapCtx.fillStyle = "#000";
+    minimapCtx.fillRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+    const pX = Math.floor(player.x / TILE_SIZE), pY = Math.floor(player.y / TILE_SIZE);
+    const startX = pX - Math.floor(MINIMAP_WIDTH / (2 * MINIMAP_SCALE));
+    const startY = pY - Math.floor(MINIMAP_HEIGHT / (2 * MINIMAP_SCALE));
+
+    for (let my = 0; my < MINIMAP_HEIGHT; my++) {
+        for (let mx = 0; mx < MINIMAP_WIDTH; mx++) {
+            const wx = startX + Math.floor(mx / MINIMAP_SCALE);
+            const wy = startY + Math.floor(my / MINIMAP_SCALE);
+            if (wx >= 0 && wx < WORLD_COLS && wy >= 0 && wy < WORLD_ROWS) {
+                const tile = world[wy][wx];
+                const tree = treeWorld[wy][wx];
+                if (tree !== 0) minimapCtx.fillStyle = tree === 4 ? "#8B4513" : "#228B22";
+                else if (tile === 0) minimapCtx.fillStyle = "#1a1a2e";
+                else if (tile === 1) minimapCtx.fillStyle = "#4caf50";
+                else if (tile === 2) minimapCtx.fillStyle = "#795548";
+                else if (tile === 3) minimapCtx.fillStyle = "#9e9e9e";
+                else if (tile === 6) minimapCtx.fillStyle = "#f4d03f";
+                else if (tile === 7) minimapCtx.fillStyle = "#3498db";
+                else minimapCtx.fillStyle = "#333";
+                minimapCtx.fillRect(mx, my, 1, 1);
+            }
+        }
+    }
+    minimapCtx.fillStyle = "#FF0000";
+    minimapCtx.fillRect(MINIMAP_WIDTH/2 - 2, MINIMAP_HEIGHT/2 - 2, 5, 5);
+}
 
 function update() {
-    // Movimento
-    player.vx = (keys['KeyD'] ? player.speed : 0) - (keys['KeyA'] ? player.speed : 0);
-    player.vy += 0.5; // Gravidade
+    gameTime = (gameTime + 1) % DAY_LENGTH;
+    player.vx = keys['KeyA'] ? -player.speed : keys['KeyD'] ? player.speed : 0;
+    player.x = Math.max(0, Math.min(player.x + player.vx, WORLD_WIDTH_PX - player.w));
 
-    // Colisão X
-    player.x += player.vx;
-    if(isSolid(player.x, player.y + 2) || isSolid(player.x + player.w, player.y + 2) || 
-       isSolid(player.x, player.y + player.h - 2) || isSolid(player.x + player.w, player.y + player.h - 2)) {
-        player.x -= player.vx;
+    if (isSolid(player.x, player.y + 5) || isSolid(player.x + player.w, player.y + 5) ||
+        isSolid(player.x, player.y + player.h - 5) || isSolid(player.x + player.w, player.y + player.h - 5)) {
+        if (player.vx > 0) player.x = Math.floor((player.x + player.w) / TILE_SIZE) * TILE_SIZE - player.w - 0.1;
+        else if (player.vx < 0) player.x = Math.floor(player.x / TILE_SIZE) * TILE_SIZE + TILE_SIZE + 0.1;
     }
 
-    // Colisão Y
+    player.vy += 0.6;
     player.y += player.vy;
-    player.grounded = false;
-    if(isSolid(player.x + 2, player.y + player.h) || isSolid(player.x + player.w - 2, player.y + player.h)) {
-        player.y = Math.floor((player.y + player.h)/TILE_SIZE)*TILE_SIZE - player.h;
-        player.vy = 0;
-        player.grounded = true;
+    player.onGround = false;
+    if (isSolid(player.x + 2, player.y + player.h) || isSolid(player.x + player.w - 2, player.y + player.h)) {
+        player.y = Math.floor((player.y + player.h) / TILE_SIZE) * TILE_SIZE - player.h;
+        player.vy = 0; player.onGround = true;
     }
-    if(player.grounded && (keys['Space'] || keys['KeyW'])) player.vy = player.jump;
+    if (player.onGround && (keys['Space'] || keys['KeyW'])) player.vy = player.jump;
 
-    // Câmera
-    camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
-    camera.y += (player.y - canvas.height/2 - camera.y) * 0.1;
-
-    // Interação (Mineração/Construção)
-    const gx = Math.floor(mouse.x / TILE_SIZE), gy = Math.floor(mouse.y / TILE_SIZE);
-    const dist = Math.hypot(mouse.x - (player.x + player.w/2), mouse.y - (player.y + player.h/2));
-    
-    if(dist < REACH && world[gy]) {
-        if(mouse.down) {
-            if(treeWorld[gy][gx]) { treeWorld[gy][gx] = 0; inventory[4]++; updateUI(); }
-            else if(world[gy][gx] > 0 && world[gy][gx] !== 7) {
-                worldDamage[gy][gx] -= 5;
-                if(worldDamage[gy][gx] <= 0) {
-                    if(inventory[world[gy][gx]] !== undefined) inventory[world[gy][gx]]++;
-                    world[gy][gx] = 0; updateUI();
+    const gx = Math.floor(mousePos.x / TILE_SIZE), gy = Math.floor(mousePos.y / TILE_SIZE);
+    if (Math.hypot(mousePos.x - (player.x + 10), mousePos.y - (player.y + 18)) <= REACH_DISTANCE && world[gy]) {
+        if (isMouseDown) {
+            if (world[gy][gx] !== 0 && world[gy][gx] !== 7) {
+                worldDamage[gy][gx]--;
+                if(worldDamage[gy][gx] <= 0) { 
+                    inventory[world[gy][gx]]++; world[gy][gx] = 0; updateUI(); 
                 }
+            } else if (treeWorld[gy][gx] !== 0) {
+                inventory[treeWorld[gy][gx]]++; treeWorld[gy][gx] = 0; updateUI();
             }
-        } else if(mouse.rightDown && world[gy][gx] === 0 && !treeWorld[gy][gx] && inventory[selectedSlot] > 0) {
-            world[gy][gx] = selectedSlot;
-            worldDamage[gy][gx] = DURABILITY[selectedSlot];
-            inventory[selectedSlot]--;
-            updateUI();
+        }
+        if (isRightMouseDown && world[gy][gx] === 0 && treeWorld[gy][gx] === 0 && inventory[selectedSlot] > 0) {
+            world[gy][gx] = selectedSlot; 
+            worldDamage[gy][gx] = DURABILITY[selectedSlot]; 
+            inventory[selectedSlot]--; updateUI();
         }
     }
 
-    document.getElementById('debug-info').innerText = `Bioma: ${getBiome(Math.floor(player.x/TILE_SIZE))} | Bloco: ${selectedSlot}`;
-    draw();
+    camera.x += (player.x - canvas.width / 2 - camera.x) * 0.1;
+    camera.y += (player.y - canvas.height / 2 - camera.y) * 0.1;
+    camera.x = Math.max(0, Math.min(camera.x, WORLD_WIDTH_PX - canvas.width));
+
+    document.getElementById('debug-info').innerText = `X: ${Math.floor(player.x)} | Bioma: ${getBiome(Math.floor(player.x/TILE_SIZE))} | Bloco Selecionado: ${selectedSlot}`;
     updateMinimap();
+    draw();
     requestAnimationFrame(update);
 }
 
-/** RENDERIZAÇÃO **/
 function draw() {
-    ctx.fillStyle = "#87CEEB"; // Céu
+    let dayRatio = Math.sin((gameTime / DAY_LENGTH) * Math.PI * 2); 
+    ctx.fillStyle = `rgb(0, ${Math.max(10, 60 + dayRatio * 100)}, ${Math.max(20, 100 + dayRatio * 155)})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
     ctx.translate(-camera.x, -camera.y);
 
-    const startCol = Math.floor(camera.x / TILE_SIZE) - 1;
-    const endCol = startCol + Math.ceil(canvas.width / TILE_SIZE) + 2;
-    const startRow = Math.max(0, Math.floor(camera.y / TILE_SIZE) - 1);
-    const endRow = Math.min(WORLD_ROWS, startRow + Math.ceil(canvas.height / TILE_SIZE) + 2);
-
-    for (let y = startRow; y < endRow; y++) {
-        for (let x = startCol; x < endCol; x++) {
+    const sC = Math.floor(camera.x / TILE_SIZE) - 1, eC = sC + Math.ceil(canvas.width / TILE_SIZE) + 2;
+    for (let y = 0; y < WORLD_ROWS; y++) {
+        for (let x = sC; x < eC; x++) {
             if (x < 0 || x >= WORLD_COLS) continue;
-            if (world[y][x]) ctx.drawImage(textures[world[y][x]], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-            if (treeWorld[y][x]) ctx.drawImage(textures[treeWorld[y][x]], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            if (treeWorld[y][x] !== 0) ctx.drawImage(tex[treeWorld[y][x]], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            if (world[y][x] !== 0) ctx.drawImage(tex[world[y][x]], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
     }
 
-    ctx.fillStyle = "#ff5722"; // Jogador
+    ctx.fillStyle = "#ff5722";
     ctx.fillRect(player.x, player.y, player.w, player.h);
     ctx.restore();
-}
 
-function updateMinimap() {
-    mCtx.fillStyle = "#000";
-    mCtx.fillRect(0,0, 200, 120);
-    const scale = 2;
-    const pX = Math.floor(player.x/TILE_SIZE), pY = Math.floor(player.y/TILE_SIZE);
-    
-    for(let y=0; y<WORLD_ROWS; y++) {
-        for(let x=pX-50; x<pX+50; x++) {
-            if(x<0 || x>=WORLD_COLS) continue;
-            if(world[y][x]) {
-                mCtx.fillStyle = world[y][x] === 7 ? "#3498db" : (world[y][x] === 6 ? "#f4d03f" : "#555");
-                mCtx.fillRect((x-(pX-50))*scale, y*scale, scale, scale);
-            }
-        }
-    }
-    mCtx.fillStyle = "red";
-    mCtx.fillRect(100, pY*scale, 4, 4);
+    let nightOpacity = Math.max(0, -dayRatio * 0.65);
+    ctx.fillStyle = `rgba(0, 0, 30, ${nightOpacity})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function updateUI() {
-    [1,2,3,4,6].forEach(id => {
-        const slot = document.getElementById(`slot-${id}`);
-        if(slot) {
-            slot.querySelector('.count').innerText = inventory[id];
-            slot.classList.toggle('selected', selectedSlot === id);
-            if(!slot.querySelector('canvas')) {
-                const icon = document.createElement('canvas');
-                icon.width = 16; icon.height = 16;
-                icon.getContext('2d').drawImage(textures[id], 0, 0);
-                slot.appendChild(icon);
-            }
+    [1, 2, 3, 4, 6].forEach(id => {
+        const slot = document.getElementById(`slot-${id === 6 ? 6 : id}`);
+        const finalSlot = id === 6 ? document.getElementById('slot-6') : document.getElementById(`slot-${id}`);
+        if(!finalSlot) return;
+        finalSlot.querySelector('.count').innerText = inventory[id] || 0;
+        finalSlot.classList.toggle('selected', selectedSlot === id);
+        if (!finalSlot.querySelector('canvas') && tex[id]) {
+            const icon = document.createElement('canvas'); 
+            icon.width = 16; icon.height = 16;
+            icon.getContext('2d').drawImage(tex[id], 0, 0); 
+            finalSlot.appendChild(icon);
         }
     });
 }
 
-/** START **/
 initTextures();
 initWorld();
 updateUI();
